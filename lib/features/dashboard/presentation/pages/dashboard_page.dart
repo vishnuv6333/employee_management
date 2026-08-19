@@ -1,5 +1,9 @@
+import 'package:employee_manage/features/notes/presentation/bloc/notes_bloc.dart';
+import 'package:employee_manage/features/notes/presentation/bloc/notes_event.dart';
+import 'package:employee_manage/features/notes/presentation/bloc/notes_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/di/injection_container.dart' as di;
 import '../bloc/dashboard_bloc.dart';
 import '../bloc/dashboard_event.dart';
@@ -11,8 +15,13 @@ class DashboardPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => di.sl<DashboardBloc>()..add(LoadDashboardOrder()),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (_) => di.sl<DashboardBloc>()..add(LoadDashboardOrder()),
+        ),
+        BlocProvider(create: (_) => di.sl<NotesBloc>()..add(LoadNotes())),
+      ],
       child: const DashboardView(),
     );
   }
@@ -63,49 +72,62 @@ class DashboardView extends StatelessWidget {
             );
           },
           children: cards
-              .map((type) => _buildCard(type, ValueKey(type.name)))
+              .map((type) => _buildCard(context, type, ValueKey(type.name)))
               .toList(),
         );
       },
     );
   }
 
-  Widget _buildCard(DashboardCardType type, Key key) {
+  Widget _buildCard(BuildContext context, DashboardCardType type, Key key) {
     return Padding(
       key: key,
       padding: const EdgeInsets.only(bottom: 12.0),
       child: Card(
         elevation: 2,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                type.title,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: type == DashboardCardType.notesCount
+              ? () => context.push('/notes')
+              : null,
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  type.title,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 12),
-              _buildCardContent(type),
-            ],
+                const SizedBox(height: 12),
+                _buildCardContent(context, type),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildCardContent(DashboardCardType type) {
+  Widget _buildCardContent(BuildContext context, DashboardCardType type) {
     switch (type) {
       case DashboardCardType.greeting:
         return const Text('Good Morning, Employee!');
       case DashboardCardType.todaysTasks:
         return const Text('You have 3 tasks for today.');
       case DashboardCardType.notesCount:
-        return const Text('5 Notes created.');
+        return BlocBuilder<NotesBloc, NotesState>(
+          builder: (context, state) {
+            if (state is NotesLoaded) {
+              return Text('${state.notes.length} Notes created.');
+            }
+            return const Text('Loading...');
+          },
+        );
       case DashboardCardType.weather:
         return const Row(
           children: [

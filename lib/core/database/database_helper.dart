@@ -23,6 +23,7 @@ class DatabaseHelper {
   Future _createDB(Database db, int version) async {
     const idType = 'TEXT PRIMARY KEY';
     const textType = 'TEXT NOT NULL';
+    const textNullableType = 'TEXT';
     const boolType = 'BOOLEAN NOT NULL';
 
     await db.execute('''
@@ -33,7 +34,9 @@ CREATE TABLE notes (
   isArchived $boolType,
   createdAt $textType,
   updatedAt $textType,
-  color $textType
+  color $textType,
+  images $textNullableType,
+  checklist $textNullableType
 )
     ''');
   }
