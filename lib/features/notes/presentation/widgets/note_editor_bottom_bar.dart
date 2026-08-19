@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:file_picker/file_picker.dart';
 
 import '../../domain/entities/note.dart';
 import '../bloc/note_editor_bloc.dart';
@@ -31,6 +32,19 @@ class NoteEditorBottomBar extends StatelessWidget {
               );
               if (image != null && context.mounted) {
                 context.read<NoteEditorBloc>().add(ImageAdded(image.path));
+              }
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.picture_as_pdf),
+            tooltip: 'Add PDF',
+            onPressed: () async {
+              FilePickerResult? result = await FilePicker.platform.pickFiles(
+                type: FileType.custom,
+                allowedExtensions: ['pdf'],
+              );
+              if (result != null && result.files.single.path != null && context.mounted) {
+                context.read<NoteEditorBloc>().add(ImageAdded(result.files.single.path!));
               }
             },
           ),

@@ -23,16 +23,27 @@ class NoteEditorImageList extends StatelessWidget {
               scrollDirection: Axis.horizontal,
               itemCount: state.images.length,
               itemBuilder: (context, index) {
+                final path = state.images[index];
+                final isPdf = path.toLowerCase().endsWith('.pdf');
+                
                 return Padding(
                   padding: const EdgeInsets.only(right: 8.0),
                   child: Stack(
                     children: [
-                      Image.file(
-                        File(state.images[index]),
-                        width: 100,
-                        height: 100,
-                        fit: BoxFit.cover,
-                      ),
+                      if (isPdf)
+                        Container(
+                          width: 100,
+                          height: 100,
+                          color: Colors.grey[200],
+                          child: const Icon(Icons.picture_as_pdf, size: 40, color: Colors.red),
+                        )
+                      else
+                        Image.file(
+                          File(path),
+                          width: 100,
+                          height: 100,
+                          fit: BoxFit.cover,
+                        ),
                       Positioned(
                         right: 0,
                         top: 0,
