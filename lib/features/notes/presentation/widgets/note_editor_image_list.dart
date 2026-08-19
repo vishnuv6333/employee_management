@@ -26,6 +26,7 @@ class NoteEditorImageList extends StatelessWidget {
               itemBuilder: (context, index) {
                 final path = state.images[index];
                 final isPdf = path.toLowerCase().endsWith('.pdf');
+                final fileExists = File(path).existsSync();
 
                 return Padding(
                   padding: const EdgeInsets.only(right: 8.0),
@@ -33,25 +34,47 @@ class NoteEditorImageList extends StatelessWidget {
                     children: [
                       InkWell(
                         onTap: () {
-                          OpenFilex.open(path);
+                          if (fileExists) {
+                            OpenFilex.open(path);
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('File not found. It may have been deleted.')),
+                            );
+                          }
                         },
-                        child: isPdf
+                        child: !fileExists
                             ? Container(
                                 width: 100,
                                 height: 100,
                                 color: Colors.grey[200],
-                                child: const Icon(
-                                  Icons.picture_as_pdf,
-                                  size: 40,
-                                  color: Colors.red,
+                                child: const Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(Icons.broken_image, color: Colors.grey),
+                                    SizedBox(height: 4),
+                                    Text('Missing', style: TextStyle(fontSize: 10, color: Colors.grey)),
+                                  ],
                                 ),
                               )
-                            : Image.file(
-                                File(path),
-                                width: 100,
-                                height: 100,
-                                fit: BoxFit.cover,
-                              ),
+                            : (isPdf
+                                ? Container(
+                                    width: 100,
+                                    height: 100,
+                                    color: Colors.grey[200],
+                                    child: const Icon(Icons.picture_as_pdf, size: 40, color: Colors.red),
+                                  )
+                                : Image.file(
+                                    File(path),
+                                    width: 100,
+                                    height: 100,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) => Container(
+                                      width: 100,
+                                      height: 100,
+                                      color: Colors.grey[200],
+                                      child: const Icon(Icons.broken_image, color: Colors.grey),
+                                    ),
+                                  )),
                       ),
                       Positioned(
                         right: 0,

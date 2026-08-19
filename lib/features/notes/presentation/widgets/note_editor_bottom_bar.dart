@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:file_picker/file_picker.dart';
 
+import 'package:flutter/services.dart';
+
 import '../../domain/entities/note.dart';
 import '../bloc/note_editor_bloc.dart';
 import '../bloc/note_editor_event.dart';
@@ -26,12 +28,26 @@ class NoteEditorBottomBar extends StatelessWidget {
             icon: const Icon(Icons.image),
             tooltip: 'Add Image',
             onPressed: () async {
-              final ImagePicker picker = ImagePicker();
-              final XFile? image = await picker.pickImage(
-                source: ImageSource.gallery,
-              );
-              if (image != null && context.mounted) {
-                context.read<NoteEditorBloc>().add(ImageAdded(image.path));
+              try {
+                final ImagePicker picker = ImagePicker();
+                final XFile? image = await picker.pickImage(
+                  source: ImageSource.gallery,
+                );
+                if (image != null && context.mounted) {
+                  context.read<NoteEditorBloc>().add(ImageAdded(image.path));
+                }
+              } on PlatformException catch (e) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Failed to pick image: ${e.message}')),
+                  );
+                }
+              } catch (e) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('An unexpected error occurred.')),
+                  );
+                }
               }
             },
           ),
@@ -39,12 +55,26 @@ class NoteEditorBottomBar extends StatelessWidget {
             icon: const Icon(Icons.picture_as_pdf),
             tooltip: 'Add PDF',
             onPressed: () async {
-              FilePickerResult? result = await FilePicker.platform.pickFiles(
-                type: FileType.custom,
-                allowedExtensions: ['pdf'],
-              );
-              if (result != null && result.files.single.path != null && context.mounted) {
-                context.read<NoteEditorBloc>().add(ImageAdded(result.files.single.path!));
+              try {
+                FilePickerResult? result = await FilePicker.platform.pickFiles(
+                  type: FileType.custom,
+                  allowedExtensions: ['pdf'],
+                );
+                if (result != null && result.files.single.path != null && context.mounted) {
+                  context.read<NoteEditorBloc>().add(ImageAdded(result.files.single.path!));
+                }
+              } on PlatformException catch (e) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Failed to pick PDF: ${e.message}')),
+                  );
+                }
+              } catch (e) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('An unexpected error occurred.')),
+                  );
+                }
               }
             },
           ),

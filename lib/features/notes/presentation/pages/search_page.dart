@@ -83,7 +83,35 @@ class _SearchPageState extends State<SearchPage> {
                   },
                 );
               } else if (state is NotesError) {
-                return Center(child: Text('Error: ${state.message}'));
+                return Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.error_outline, size: 64, color: Colors.redAccent),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Oops! Something went wrong.',
+                          style: Theme.of(context).textTheme.titleLarge,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'We encountered an error during search: ${state.message}',
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(color: Colors.grey),
+                        ),
+                        const SizedBox(height: 16),
+                        ElevatedButton(
+                          onPressed: () {
+                            context.read<NotesBloc>().add(SearchNotes(_searchController.text.trim()));
+                          },
+                          child: const Text('Try Again'),
+                        )
+                      ],
+                    ),
+                  ),
+                );
               }
               return const Center(child: Text('Start typing to search'));
             },
