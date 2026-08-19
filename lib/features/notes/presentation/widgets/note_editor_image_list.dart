@@ -4,6 +4,7 @@ import 'package:employee_manage/features/notes/presentation/bloc/note_editor_eve
 import 'package:employee_manage/features/notes/presentation/bloc/note_editor_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:open_filex/open_filex.dart';
 
 class NoteEditorImageList extends StatelessWidget {
   const NoteEditorImageList({super.key});
@@ -25,25 +26,33 @@ class NoteEditorImageList extends StatelessWidget {
               itemBuilder: (context, index) {
                 final path = state.images[index];
                 final isPdf = path.toLowerCase().endsWith('.pdf');
-                
+
                 return Padding(
                   padding: const EdgeInsets.only(right: 8.0),
                   child: Stack(
                     children: [
-                      if (isPdf)
-                        Container(
-                          width: 100,
-                          height: 100,
-                          color: Colors.grey[200],
-                          child: const Icon(Icons.picture_as_pdf, size: 40, color: Colors.red),
-                        )
-                      else
-                        Image.file(
-                          File(path),
-                          width: 100,
-                          height: 100,
-                          fit: BoxFit.cover,
-                        ),
+                      InkWell(
+                        onTap: () {
+                          OpenFilex.open(path);
+                        },
+                        child: isPdf
+                            ? Container(
+                                width: 100,
+                                height: 100,
+                                color: Colors.grey[200],
+                                child: const Icon(
+                                  Icons.picture_as_pdf,
+                                  size: 40,
+                                  color: Colors.red,
+                                ),
+                              )
+                            : Image.file(
+                                File(path),
+                                width: 100,
+                                height: 100,
+                                fit: BoxFit.cover,
+                              ),
+                      ),
                       Positioned(
                         right: 0,
                         top: 0,

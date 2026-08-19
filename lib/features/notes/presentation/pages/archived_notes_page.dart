@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 import '../../../../core/widgets/skeleton_loader.dart';
 import '../bloc/notes_bloc.dart';
 import '../bloc/notes_event.dart';
 import '../bloc/notes_state.dart';
-import '../../domain/entities/note.dart';
-import '../../../../core/routing/app_routes.dart';
 import '../widgets/archived_note_card_widget.dart';
 
 class ArchivedNotesPage extends StatefulWidget {
@@ -41,7 +37,10 @@ class _ArchivedNotesPageState extends State<ArchivedNotesPage> {
               itemCount: state.notes.length,
               itemBuilder: (context, index) {
                 final note = state.notes[index];
-                return ArchivedNoteCardWidget(note: note, key: ValueKey(note.id));
+                return ArchivedNoteCardWidget(
+                  note: note,
+                  key: ValueKey(note.id),
+                );
               },
             );
           } else if (state is NotesError) {
