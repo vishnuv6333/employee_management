@@ -84,10 +84,8 @@ class _NoteEditorPageState extends State<NoteEditorPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => di.sl<NotesBloc>(),
-      child: Builder(
-        builder: (context) {
+    return Builder(
+      builder: (context) {
           // ignore: deprecated_member_use
           return WillPopScope(
             onWillPop: () async {
@@ -245,8 +243,7 @@ class _NoteEditorPageState extends State<NoteEditorPage> {
             ),
           );
         },
-      ),
-    );
+      );
   }
 
   void _showAddChecklistDialog(BuildContext context) {

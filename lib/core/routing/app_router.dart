@@ -4,6 +4,7 @@ import '../../features/dashboard/presentation/pages/dashboard_page.dart';
 import '../../features/notes/presentation/pages/notes_page.dart';
 import '../../features/notes/presentation/pages/note_editor_page.dart';
 import '../../features/notes/presentation/pages/search_page.dart';
+import '../../features/settings/presentation/pages/settings_page.dart';
 import '../../features/notes/domain/entities/note.dart';
 
 final GoRouter appRouter = GoRouter(
@@ -27,6 +28,10 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/search',
       builder: (context, state) => const SearchPage(),
+    ),
+    GoRoute(
+      path: '/settings',
+      builder: (context, state) => const SettingsPage(),
     ),
   ],
 );

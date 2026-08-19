@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/di/injection_container.dart' as di;
+import '../../../../core/widgets/skeleton_loader.dart';
 import '../bloc/dashboard_bloc.dart';
 import '../bloc/dashboard_event.dart';
 import '../bloc/dashboard_state.dart';
@@ -15,13 +16,8 @@ class DashboardPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider(
-          create: (_) => di.sl<DashboardBloc>()..add(LoadDashboardOrder()),
-        ),
-        BlocProvider(create: (_) => di.sl<NotesBloc>()..add(LoadNotes())),
-      ],
+    return BlocProvider(
+      create: (_) => di.sl<DashboardBloc>()..add(LoadDashboardOrder()),
       child: const DashboardView(),
     );
   }
@@ -36,7 +32,10 @@ class DashboardView extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Smart Workspace'),
         actions: [
-          IconButton(icon: const Icon(Icons.settings), onPressed: () {}),
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: () => context.push('/settings'),
+          ),
         ],
       ),
       body: BlocBuilder<DashboardBloc, DashboardState>(
@@ -44,8 +43,18 @@ class DashboardView extends StatelessWidget {
           if (state is DashboardLoaded) {
             return _buildReorderableList(context, state.cardOrder);
           }
-          return const Center(child: CircularProgressIndicator());
+          return const CardSkeletonList();
         },
+      ),
+      floatingActionButton: FloatingActionButton(
+        tooltip: 'Create Smart Note',
+        onPressed: () {
+          context.push('/note-editor').then((_) {
+            // ignore: use_build_context_synchronously
+            context.read<NotesBloc>().add(LoadNotes());
+          });
+        },
+        child: const Icon(Icons.note_add),
       ),
     );
   }

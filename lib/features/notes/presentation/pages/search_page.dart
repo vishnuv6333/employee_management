@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:async';
 import '../../../../core/di/injection_container.dart' as di;
+import '../../../../core/widgets/skeleton_loader.dart';
 import '../bloc/notes_bloc.dart';
 import '../bloc/notes_event.dart';
 import '../bloc/notes_state.dart';
@@ -39,12 +40,10 @@ class _SearchPageState extends State<SearchPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => di.sl<NotesBloc>(),
-      child: Builder(
-        builder: (context) {
-          return Scaffold(
-            appBar: AppBar(
+    return Builder(
+      builder: (context) {
+        return Scaffold(
+          appBar: AppBar(
               title: TextField(
                 controller: _searchController,
                 autofocus: true,
@@ -74,7 +73,7 @@ class _SearchPageState extends State<SearchPage> {
             body: BlocBuilder<NotesBloc, NotesState>(
               builder: (context, state) {
                 if (state is NotesLoading) {
-                  return const Center(child: CircularProgressIndicator());
+                  return const CardSkeletonList();
                 } else if (state is NotesLoaded) {
                   final notes = state.notes;
                   if (notes.isEmpty) {
@@ -99,8 +98,7 @@ class _SearchPageState extends State<SearchPage> {
             ),
           );
         },
-      ),
-    );
+      );
   }
 
   Widget _buildEmptyState(BuildContext context) {

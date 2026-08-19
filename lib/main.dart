@@ -5,6 +5,8 @@ import 'core/routing/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'features/settings/presentation/bloc/theme_bloc.dart';
 import 'features/settings/presentation/bloc/theme_state.dart';
+import 'features/notes/presentation/bloc/notes_bloc.dart';
+import 'features/notes/presentation/bloc/notes_event.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,14 +19,17 @@ class SmartWorkspaceApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => di.sl<ThemeBloc>(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => di.sl<ThemeBloc>()),
+        BlocProvider(create: (_) => di.sl<NotesBloc>()..add(LoadNotes())),
+      ],
       child: BlocBuilder<ThemeBloc, ThemeState>(
         builder: (context, themeState) {
           return MaterialApp.router(
             title: 'Smart Workspace',
-            theme: AppTheme.lightTheme,
-            darkTheme: AppTheme.darkTheme,
+            theme: AppTheme.lightTheme(themeState.seedColor),
+            darkTheme: AppTheme.darkTheme(themeState.seedColor),
             themeMode: themeState.isDarkMode ? ThemeMode.dark : ThemeMode.light,
             routerConfig: appRouter,
             debugShowCheckedModeBanner: false,

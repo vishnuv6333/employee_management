@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/di/injection_container.dart' as di;
+import '../../../../core/widgets/skeleton_loader.dart';
 import '../bloc/notes_bloc.dart';
 import '../bloc/notes_event.dart';
 import '../bloc/notes_state.dart';
@@ -13,10 +14,7 @@ class NotesPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => di.sl<NotesBloc>()..add(LoadNotes()),
-      child: const NotesView(),
-    );
+    return const NotesView();
   }
 }
 
@@ -43,7 +41,7 @@ class NotesView extends StatelessWidget {
       body: BlocBuilder<NotesBloc, NotesState>(
         builder: (context, state) {
           if (state is NotesLoading) {
-            return const Center(child: CircularProgressIndicator());
+            return const CardSkeletonList();
           } else if (state is NotesLoaded) {
             if (state.notes.isEmpty) {
               return const Center(child: Text('No notes yet. Create one!'));
@@ -65,6 +63,7 @@ class NotesView extends StatelessWidget {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           context.push('/note-editor').then((_) {
+            // ignore: use_build_context_synchronously
             context.read<NotesBloc>().add(LoadNotes());
           });
         },
