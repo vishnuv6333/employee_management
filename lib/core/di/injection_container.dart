@@ -1,6 +1,7 @@
-import 'package:employee_manage/features/settings/presentation/bloc/theme_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../features/settings/presentation/bloc/theme_bloc.dart';
+import '../../features/dashboard/presentation/bloc/dashboard_bloc.dart';
 
 final sl = GetIt.instance;
 
@@ -9,6 +10,7 @@ Future<void> init() async {
   final sharedPreferences = await SharedPreferences.getInstance();
   sl.registerLazySingleton(() => sharedPreferences);
 
-  // Features - Settings / Theme
+  // Features
   sl.registerFactory(() => ThemeBloc(sharedPreferences: sl()));
+  sl.registerFactory(() => DashboardBloc(sharedPreferences: sl()));
 }
