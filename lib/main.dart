@@ -8,11 +8,14 @@ import 'features/settings/presentation/bloc/theme_state.dart';
 import 'features/notes/presentation/bloc/notes_bloc.dart';
 import 'features/notes/presentation/bloc/notes_event.dart';
 
+import 'core/notifications/notification_service.dart';
+
 final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await di.init();
+  await di.sl<NotificationService>().init();
   runApp(const SmartWorkspaceApp());
 }
 

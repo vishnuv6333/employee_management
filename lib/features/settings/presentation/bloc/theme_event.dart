@@ -21,3 +21,13 @@ class ChangeThemeColor extends ThemeEvent {
   @override
   List<Object> get props => [color];
 }
+
+class UpdateDailyReminderEvent extends ThemeEvent {
+  final bool enabled;
+  final TimeOfDay time;
+
+  const UpdateDailyReminderEvent({required this.enabled, required this.time});
+
+  @override
+  List<Object> get props => [enabled, time];
+}

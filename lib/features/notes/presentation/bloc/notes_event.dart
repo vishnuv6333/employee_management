@@ -10,6 +10,8 @@ abstract class NotesEvent extends Equatable {
 
 class LoadNotes extends NotesEvent {}
 
+class LoadArchivedNotes extends NotesEvent {}
+
 class SearchNotes extends NotesEvent {
   final String query;
   const SearchNotes(this.query);

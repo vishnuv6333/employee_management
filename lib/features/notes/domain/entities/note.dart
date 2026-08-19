@@ -23,6 +23,30 @@ class Note extends Equatable {
     required this.checklist,
   });
 
+  Note copyWith({
+    String? id,
+    String? title,
+    String? description,
+    bool? isArchived,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    String? color,
+    List<String>? images,
+    List<ChecklistItem>? checklist,
+  }) {
+    return Note(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      description: description ?? this.description,
+      isArchived: isArchived ?? this.isArchived,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      color: color ?? this.color,
+      images: images ?? this.images,
+      checklist: checklist ?? this.checklist,
+    );
+  }
+
   @override
   List<Object?> get props => [
         id,

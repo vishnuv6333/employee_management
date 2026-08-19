@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/native/native_bridge.dart';
+import '../../../../core/di/injection_container.dart' as di;
+import '../../../../core/notifications/notification_service.dart';
 
 class NativeDemoPage extends StatefulWidget {
   const NativeDemoPage({super.key});
@@ -45,6 +47,16 @@ class _NativeDemoPageState extends State<NativeDemoPage> {
           ElevatedButton(
             onPressed: () => NativeBridge.showNativeBottomSheet(),
             child: const Text('Show Native Bottom Sheet'),
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton(
+            onPressed: () async {
+              for (int i = 0; i <= 100; i += 10) {
+                di.sl<NotificationService>().showProgressNotification(i, 100);
+                await Future.delayed(const Duration(milliseconds: 500));
+              }
+            },
+            child: const Text('Simulate Sync Progress Notification'),
           ),
         ],
       ),

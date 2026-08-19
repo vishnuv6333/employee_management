@@ -22,6 +22,19 @@ class NoteRepositoryImpl implements NoteRepository {
       return NoteModel.fromJson(maps[i]);
     });
   }
+  @override
+  Future<List<Note>> getArchivedNotes() async {
+    final db = await databaseHelper.database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'notes',
+      where: 'isArchived = ?',
+      whereArgs: [1],
+      orderBy: 'createdAt DESC',
+    );
+    return List.generate(maps.length, (i) {
+      return NoteModel.fromJson(maps[i]);
+    });
+  }
 
   @override
   Future<List<Note>> searchNotes(String query) async {

@@ -14,6 +14,7 @@ class NotesBloc extends Bloc<NotesEvent, NotesState> {
   final SharedPreferences sharedPreferences;
   final SyncService syncService;
   List<Note>? _cachedMockNotes;
+  bool _isShowingArchived = false;
 
   NotesBloc({
     required this.repository, 
@@ -21,9 +22,21 @@ class NotesBloc extends Bloc<NotesEvent, NotesState> {
     required this.syncService,
   }) : super(NotesInitial()) {
     on<LoadNotes>((event, emit) async {
+      _isShowingArchived = false;
       emit(NotesLoading());
       try {
         final notes = await repository.getNotes();
+        emit(NotesLoaded(notes));
+      } catch (e) {
+        emit(NotesError(e.toString()));
+      }
+    });
+
+    on<LoadArchivedNotes>((event, emit) async {
+      _isShowingArchived = true;
+      emit(NotesLoading());
+      try {
+        final notes = await repository.getArchivedNotes();
         emit(NotesLoaded(notes));
       } catch (e) {
         emit(NotesError(e.toString()));
@@ -73,7 +86,11 @@ class NotesBloc extends Bloc<NotesEvent, NotesState> {
         if (syncService.isOffline) {
           await repository.addToSyncQueue(event.note.id, 'ADD');
         }
-        add(LoadNotes());
+        if (_isShowingArchived) {
+          add(LoadArchivedNotes());
+        } else {
+          add(LoadNotes());
+        }
       } catch (e) {
         emit(NotesError(e.toString()));
       }
@@ -85,7 +102,11 @@ class NotesBloc extends Bloc<NotesEvent, NotesState> {
         if (syncService.isOffline) {
           await repository.addToSyncQueue(event.note.id, 'UPDATE');
         }
-        add(LoadNotes());
+        if (_isShowingArchived) {
+          add(LoadArchivedNotes());
+        } else {
+          add(LoadNotes());
+        }
       } catch (e) {
         emit(NotesError(e.toString()));
       }
@@ -97,7 +118,11 @@ class NotesBloc extends Bloc<NotesEvent, NotesState> {
         if (syncService.isOffline) {
           await repository.addToSyncQueue(event.id, 'DELETE');
         }
-        add(LoadNotes());
+        if (_isShowingArchived) {
+          add(LoadArchivedNotes());
+        } else {
+          add(LoadNotes());
+        }
       } catch (e) {
         emit(NotesError(e.toString()));
       }
@@ -107,9 +132,13 @@ class NotesBloc extends Bloc<NotesEvent, NotesState> {
       try {
         await repository.archiveNote(event.id);
         if (syncService.isOffline) {
-          await repository.addToSyncQueue(event.id, 'ARCHIVE');
+          await repository.addToSyncQueue(event.id, 'UPDATE');
         }
-        add(LoadNotes());
+        if (_isShowingArchived) {
+          add(LoadArchivedNotes());
+        } else {
+          add(LoadNotes());
+        }
       } catch (e) {
         emit(NotesError(e.toString()));
       }

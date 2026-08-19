@@ -5,9 +5,17 @@ import '../bloc/theme_bloc.dart';
 import '../bloc/theme_event.dart';
 import '../bloc/theme_state.dart';
 
-class SettingsPage extends StatelessWidget {
+import '../../../../core/di/injection_container.dart' as di;
+import '../../../../core/notifications/notification_service.dart';
+
+class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
 
+  @override
+  State<SettingsPage> createState() => _SettingsPageState();
+}
+
+class _SettingsPageState extends State<SettingsPage> {
   final List<Color> _themeColors = const [
     Colors.deepPurple,
     Colors.blue,
@@ -17,6 +25,15 @@ class SettingsPage extends StatelessWidget {
     Colors.red,
     Colors.pink,
   ];
+
+  String _formatTime(TimeOfDay time) {
+    final hour = time.hour == 0
+        ? 12
+        : (time.hour > 12 ? time.hour - 12 : time.hour);
+    final minute = time.minute.toString().padLeft(2, '0');
+    final period = time.hour >= 12 ? 'PM' : 'AM';
+    return '$hour:$minute $period';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -54,8 +71,7 @@ class SettingsPage extends StatelessWidget {
                 spacing: 12.0,
                 runSpacing: 12.0,
                 children: _themeColors.map((color) {
-                  // ignore: deprecated_member_use
-                  final isSelected = state.seedColor.value == color.value;
+                  final isSelected = state.seedColor == color;
                   return GestureDetector(
                     onTap: () {
                       context.read<ThemeBloc>().add(ChangeThemeColor(color));
@@ -85,6 +101,52 @@ class SettingsPage extends StatelessWidget {
                     ),
                   );
                 }).toList(),
+              ),
+              const SizedBox(height: 32),
+              const Divider(),
+              const SizedBox(height: 16),
+              const Text(
+                'Notifications',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 16),
+              SwitchListTile(
+                title: const Text('Daily Reminder'),
+                subtitle: Text(
+                  'Get notified every day at ${_formatTime(state.dailyReminderTime)}',
+                ),
+                value: state.dailyReminderEnabled,
+                onChanged: (val) async {
+                  if (val) {
+                    final time = await showTimePicker(
+                      context: context,
+                      initialTime: state.dailyReminderTime,
+                      builder: (BuildContext context, Widget? child) {
+                        return MediaQuery(
+                          data: MediaQuery.of(
+                            context,
+                          ).copyWith(alwaysUse24HourFormat: false),
+                          child: child!,
+                        );
+                      },
+                    );
+                    if (time != null && context.mounted) {
+                      context.read<ThemeBloc>().add(
+                        UpdateDailyReminderEvent(enabled: true, time: time),
+                      );
+                      di.sl<NotificationService>().scheduleDailyReminder(time);
+                    }
+                  } else {
+                    context.read<ThemeBloc>().add(
+                      UpdateDailyReminderEvent(
+                        enabled: false,
+                        time: state.dailyReminderTime,
+                      ),
+                    );
+                    di.sl<NotificationService>().cancelDailyReminder();
+                  }
+                },
+                secondary: const Icon(Icons.notifications_active),
               ),
               const SizedBox(height: 32),
               const Divider(),
