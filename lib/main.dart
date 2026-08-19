@@ -8,6 +8,8 @@ import 'features/settings/presentation/bloc/theme_state.dart';
 import 'features/notes/presentation/bloc/notes_bloc.dart';
 import 'features/notes/presentation/bloc/notes_event.dart';
 
+final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await di.init();
@@ -27,6 +29,7 @@ class SmartWorkspaceApp extends StatelessWidget {
       child: BlocBuilder<ThemeBloc, ThemeState>(
         builder: (context, themeState) {
           return MaterialApp.router(
+            scaffoldMessengerKey: scaffoldMessengerKey,
             title: 'Smart Workspace',
             theme: AppTheme.lightTheme(themeState.seedColor),
             darkTheme: AppTheme.darkTheme(themeState.seedColor),

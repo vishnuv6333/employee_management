@@ -8,4 +8,8 @@ abstract class NoteRepository {
   Future<void> updateNote(Note note);
   Future<void> deleteNote(String id);
   Future<void> archiveNote(String id);
+  Future<void> insertNotes(List<Note> notes);
+  Future<List<Map<String, dynamic>>> getSyncQueue();
+  Future<void> clearSyncQueue();
+  Future<void> addToSyncQueue(String noteId, String operation);
 }

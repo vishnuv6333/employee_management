@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:async';
-import '../../../../core/di/injection_container.dart' as di;
 import '../../../../core/widgets/skeleton_loader.dart';
 import '../bloc/notes_bloc.dart';
 import '../bloc/notes_event.dart';
@@ -44,61 +43,54 @@ class _SearchPageState extends State<SearchPage> {
       builder: (context) {
         return Scaffold(
           appBar: AppBar(
-              title: TextField(
-                controller: _searchController,
-                autofocus: true,
-                decoration: const InputDecoration(
-                  hintText: 'Search notes...',
-                  border: InputBorder.none,
-                ),
-                onChanged: (val) => _onSearchChanged(val, context),
+            title: TextField(
+              controller: _searchController,
+              autofocus: true,
+              decoration: const InputDecoration(
+                hintText: 'Search notes...',
+                border: InputBorder.none,
               ),
-              actions: [
-                IconButton(
-                  icon: const Icon(Icons.data_array),
-                  tooltip: 'Generate Mock Data',
-                  onPressed: () {
-                    context.read<NotesBloc>().add(GenerateMockData());
-                  },
-                ),
-                IconButton(
-                  icon: const Icon(Icons.clear),
-                  onPressed: () {
-                    _searchController.clear();
-                    context.read<NotesBloc>().add(LoadNotes());
-                  },
-                ),
-              ],
+              onChanged: (val) => _onSearchChanged(val, context),
             ),
-            body: BlocBuilder<NotesBloc, NotesState>(
-              builder: (context, state) {
-                if (state is NotesLoading) {
-                  return const CardSkeletonList();
-                } else if (state is NotesLoaded) {
-                  final notes = state.notes;
-                  if (notes.isEmpty) {
-                    return _buildEmptyState(context);
-                  }
-                  return ListView.builder(
-                    padding: const EdgeInsets.all(16.0),
-                    itemCount: notes.length,
-                    itemBuilder: (context, index) {
-                      return _buildSearchNoteCard(
-                        context,
-                        notes[index],
-                        _searchController.text,
-                      );
-                    },
-                  );
-                } else if (state is NotesError) {
-                  return Center(child: Text('Error: ${state.message}'));
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.clear),
+                onPressed: () {
+                  _searchController.clear();
+                  context.read<NotesBloc>().add(LoadNotes());
+                },
+              ),
+            ],
+          ),
+          body: BlocBuilder<NotesBloc, NotesState>(
+            builder: (context, state) {
+              if (state is NotesLoading) {
+                return const CardSkeletonList();
+              } else if (state is NotesLoaded) {
+                final notes = state.notes;
+                if (notes.isEmpty) {
+                  return _buildEmptyState(context);
                 }
-                return const Center(child: Text('Start typing to search'));
-              },
-            ),
-          );
-        },
-      );
+                return ListView.builder(
+                  padding: const EdgeInsets.all(16.0),
+                  itemCount: notes.length,
+                  itemBuilder: (context, index) {
+                    return _buildSearchNoteCard(
+                      context,
+                      notes[index],
+                      _searchController.text,
+                    );
+                  },
+                );
+              } else if (state is NotesError) {
+                return Center(child: Text('Error: ${state.message}'));
+              }
+              return const Center(child: Text('Start typing to search'));
+            },
+          ),
+        );
+      },
+    );
   }
 
   Widget _buildEmptyState(BuildContext context) {

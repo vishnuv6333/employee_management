@@ -5,6 +5,7 @@ import '../../features/notes/presentation/pages/notes_page.dart';
 import '../../features/notes/presentation/pages/note_editor_page.dart';
 import '../../features/notes/presentation/pages/search_page.dart';
 import '../../features/settings/presentation/pages/settings_page.dart';
+import '../../features/settings/presentation/pages/native_demo_page.dart';
 import '../../features/notes/domain/entities/note.dart';
 
 final GoRouter appRouter = GoRouter(
@@ -32,6 +33,10 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/settings',
       builder: (context, state) => const SettingsPage(),
+    ),
+    GoRoute(
+      path: '/native-demo',
+      builder: (context, state) => const NativeDemoPage(),
     ),
   ],
 );

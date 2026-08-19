@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../core/di/injection_container.dart' as di;
 import '../../../../core/widgets/skeleton_loader.dart';
 import '../bloc/notes_bloc.dart';
 import '../bloc/notes_event.dart';
@@ -97,14 +96,20 @@ class NotesView extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Expanded(
-                    child: Text(
-                      note.title,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                    child: Hero(
+                      tag: 'note_title_${note.id}',
+                      child: Material(
+                        type: MaterialType.transparency,
+                        child: Text(
+                          note.title.isEmpty ? 'Untitled' : note.title,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                   PopupMenuButton<String>(

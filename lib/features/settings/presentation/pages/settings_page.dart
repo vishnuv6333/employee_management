@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import '../bloc/theme_bloc.dart';
 import '../bloc/theme_event.dart';
 import '../bloc/theme_state.dart';
@@ -72,7 +73,7 @@ class SettingsPage extends StatelessWidget {
                         boxShadow: [
                           if (isSelected)
                             BoxShadow(
-                              color: color.withOpacity(0.5),
+                              color: color.withValues(alpha: 0.5),
                               blurRadius: 8,
                               spreadRadius: 2,
                             ),
@@ -84,6 +85,25 @@ class SettingsPage extends StatelessWidget {
                     ),
                   );
                 }).toList(),
+              ),
+              const SizedBox(height: 32),
+              const Divider(),
+              const SizedBox(height: 16),
+              const Text(
+                'Advanced',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 16),
+              ListTile(
+                leading: const Icon(Icons.integration_instructions),
+                title: const Text('Native Integrations Demo'),
+                subtitle: const Text(
+                  'Test Method Channels (Device Info, Date Picker, etc.)',
+                ),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () {
+                  context.push('/native-demo');
+                },
               ),
             ],
           );

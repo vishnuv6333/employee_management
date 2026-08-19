@@ -2,6 +2,7 @@ import 'package:employee_manage/features/notes/presentation/bloc/notes_bloc.dart
 import 'package:employee_manage/features/notes/presentation/bloc/notes_event.dart';
 import 'package:employee_manage/features/notes/presentation/bloc/notes_state.dart';
 import 'package:flutter/material.dart';
+import '../../../../core/network/sync_service.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/di/injection_container.dart' as di;
@@ -38,12 +39,41 @@ class DashboardView extends StatelessWidget {
           ),
         ],
       ),
-      body: BlocBuilder<DashboardBloc, DashboardState>(
-        builder: (context, state) {
-          if (state is DashboardLoaded) {
-            return _buildReorderableList(context, state.cardOrder);
-          }
-          return const CardSkeletonList();
+      body: StreamBuilder<bool>(
+        stream: di.sl<SyncService>().offlineStatusStream,
+        initialData: di.sl<SyncService>().isOffline,
+        builder: (context, offlineSnapshot) {
+          final isOffline = offlineSnapshot.data ?? false;
+          return Column(
+            children: [
+              AnimatedSize(
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeInOut,
+                child: isOffline
+                    ? Container(
+                        width: double.infinity,
+                        color: Colors.redAccent,
+                        padding: const EdgeInsets.symmetric(vertical: 4),
+                        child: const Text(
+                          'Working Offline',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                        ),
+                      )
+                    : const SizedBox.shrink(),
+              ),
+              Expanded(
+                child: BlocBuilder<DashboardBloc, DashboardState>(
+                  builder: (context, state) {
+                    return AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 300),
+                      child: _buildDashboardContent(context, state),
+                    );
+                  },
+                ),
+              ),
+            ],
+          );
         },
       ),
       floatingActionButton: FloatingActionButton(
@@ -57,6 +87,13 @@ class DashboardView extends StatelessWidget {
         child: const Icon(Icons.note_add),
       ),
     );
+  }
+
+  Widget _buildDashboardContent(BuildContext context, DashboardState state) {
+    if (state is DashboardLoaded) {
+      return _buildReorderableList(context, state.cardOrder);
+    }
+    return const CardSkeletonList(key: ValueKey('skeleton'));
   }
 
   Widget _buildReorderableList(

@@ -86,164 +86,190 @@ class _NoteEditorPageState extends State<NoteEditorPage> {
   Widget build(BuildContext context) {
     return Builder(
       builder: (context) {
-          // ignore: deprecated_member_use
-          return WillPopScope(
-            onWillPop: () async {
-              if (_isDirty) {
-                _saveNote(context);
-              }
-              return true;
-            },
-            child: Scaffold(
-              appBar: AppBar(
-                actions: [
-                  if (widget.note != null)
-                    IconButton(
-                      icon: const Icon(Icons.delete),
-                      onPressed: () {
-                        context.read<NotesBloc>().add(
-                          DeleteNote(widget.note!.id),
-                        );
-                        context.pop();
-                      },
-                    ),
+        // ignore: deprecated_member_use
+        return WillPopScope(
+          onWillPop: () async {
+            if (_isDirty) {
+              _saveNote(context);
+            }
+            return true;
+          },
+          child: Scaffold(
+            appBar: AppBar(
+              actions: [
+                if (widget.note != null)
                   IconButton(
-                    icon: const Icon(Icons.check),
+                    icon: const Icon(Icons.delete),
                     onPressed: () {
-                      _saveNote(context);
-                      _isDirty = false;
+                      context.read<NotesBloc>().add(
+                        DeleteNote(widget.note!.id),
+                      );
                       context.pop();
                     },
                   ),
-                ],
-              ),
-              body: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  children: [
-                    TextField(
-                      controller: _titleController,
-                      style: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      decoration: const InputDecoration(
-                        hintText: 'Title',
-                        border: InputBorder.none,
-                      ),
-                    ),
-                    Expanded(
+                IconButton(
+                  icon: const Icon(Icons.check),
+                  onPressed: () {
+                    _saveNote(context);
+                    _isDirty = false;
+                    context.pop();
+                  },
+                ),
+              ],
+            ),
+            body: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                children: [
+                  Hero(
+                    tag: widget.note != null
+                        ? 'note_title_${widget.note!.id}'
+                        : 'new_note_title',
+                    child: Material(
+                      type: MaterialType.transparency,
                       child: TextField(
-                        controller: _descController,
-                        maxLines: null,
-                        keyboardType: TextInputType.multiline,
+                        controller: _titleController,
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
                         decoration: const InputDecoration(
-                          hintText: 'Note details...',
+                          hintText: 'Title',
                           border: InputBorder.none,
                         ),
                       ),
                     ),
-                    if (_images.isNotEmpty) ...[
-                      const SizedBox(height: 16),
-                      SizedBox(
-                        height: 100,
-                        child: ListView.builder(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: _images.length,
-                          itemBuilder: (context, index) {
-                            return Padding(
-                              padding: const EdgeInsets.only(right: 8.0),
-                              child: Stack(
-                                children: [
-                                  Image.file(File(_images[index]), width: 100, height: 100, fit: BoxFit.cover),
-                                  Positioned(
-                                    right: 0,
-                                    top: 0,
-                                    child: IconButton(
-                                      icon: const Icon(Icons.remove_circle, color: Colors.red),
-                                      onPressed: () {
-                                        setState(() {
-                                          _images.removeAt(index);
-                                          _markDirty();
-                                        });
-                                      },
-                                    ),
-                                  )
-                                ],
-                              ),
-                            );
-                          },
-                        ),
+                  ),
+                  Expanded(
+                    child: TextField(
+                      controller: _descController,
+                      maxLines: null,
+                      keyboardType: TextInputType.multiline,
+                      decoration: const InputDecoration(
+                        hintText: 'Note details...',
+                        border: InputBorder.none,
                       ),
-                    ],
-                    if (_checklist.isNotEmpty) ...[
-                      const Divider(),
-                      const Text('Checklist', style: TextStyle(fontWeight: FontWeight.bold)),
-                      ..._checklist.asMap().entries.map((entry) {
-                        int idx = entry.key;
-                        ChecklistItem item = entry.value;
-                        return CheckboxListTile(
-                          title: Text(
-                            item.title,
-                            style: TextStyle(
-                              decoration: item.isCompleted ? TextDecoration.lineThrough : null,
+                    ),
+                  ),
+                  if (_images.isNotEmpty) ...[
+                    const SizedBox(height: 16),
+                    SizedBox(
+                      height: 100,
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: _images.length,
+                        itemBuilder: (context, index) {
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 8.0),
+                            child: Stack(
+                              children: [
+                                Image.file(
+                                  File(_images[index]),
+                                  width: 100,
+                                  height: 100,
+                                  fit: BoxFit.cover,
+                                ),
+                                Positioned(
+                                  right: 0,
+                                  top: 0,
+                                  child: IconButton(
+                                    icon: const Icon(
+                                      Icons.remove_circle,
+                                      color: Colors.red,
+                                    ),
+                                    onPressed: () {
+                                      setState(() {
+                                        _images.removeAt(index);
+                                        _markDirty();
+                                      });
+                                    },
+                                  ),
+                                ),
+                              ],
                             ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                  if (_checklist.isNotEmpty) ...[
+                    const Divider(),
+                    const Text(
+                      'Checklist',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    ..._checklist.asMap().entries.map((entry) {
+                      int idx = entry.key;
+                      ChecklistItem item = entry.value;
+                      return CheckboxListTile(
+                        title: Text(
+                          item.title,
+                          style: TextStyle(
+                            decoration: item.isCompleted
+                                ? TextDecoration.lineThrough
+                                : null,
                           ),
-                          value: item.isCompleted,
-                          onChanged: (val) {
+                        ),
+                        value: item.isCompleted,
+                        onChanged: (val) {
+                          setState(() {
+                            _checklist[idx] = ChecklistItem(
+                              title: item.title,
+                              isCompleted: val ?? false,
+                            );
+                            _markDirty();
+                          });
+                        },
+                        secondary: IconButton(
+                          icon: const Icon(Icons.delete, color: Colors.red),
+                          onPressed: () {
                             setState(() {
-                              _checklist[idx] = ChecklistItem(title: item.title, isCompleted: val ?? false);
+                              _checklist.removeAt(idx);
                               _markDirty();
                             });
                           },
-                          secondary: IconButton(
-                            icon: const Icon(Icons.delete, color: Colors.red),
-                            onPressed: () {
-                              setState(() {
-                                _checklist.removeAt(idx);
-                                _markDirty();
-                              });
-                            },
-                          ),
-                          controlAffinity: ListTileControlAffinity.leading,
-                          contentPadding: EdgeInsets.zero,
-                        );
-                      }),
-                    ],
+                        ),
+                        controlAffinity: ListTileControlAffinity.leading,
+                        contentPadding: EdgeInsets.zero,
+                      );
+                    }),
                   ],
-                ),
-              ),
-              bottomNavigationBar: BottomAppBar(
-                child: Row(
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.add_task),
-                      tooltip: 'Add Checklist Item',
-                      onPressed: () {
-                        _showAddChecklistDialog(context);
-                      },
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.image),
-                      tooltip: 'Add Image',
-                      onPressed: () async {
-                        final ImagePicker picker = ImagePicker();
-                        final XFile? image = await picker.pickImage(source: ImageSource.gallery);
-                        if (image != null) {
-                          setState(() {
-                            _images.add(image.path);
-                            _markDirty();
-                          });
-                        }
-                      },
-                    ),
-                  ],
-                ),
+                ],
               ),
             ),
-          );
-        },
-      );
+            bottomNavigationBar: BottomAppBar(
+              child: Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.add_task),
+                    tooltip: 'Add Checklist Item',
+                    onPressed: () {
+                      _showAddChecklistDialog(context);
+                    },
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.image),
+                    tooltip: 'Add Image',
+                    onPressed: () async {
+                      final ImagePicker picker = ImagePicker();
+                      final XFile? image = await picker.pickImage(
+                        source: ImageSource.gallery,
+                      );
+                      if (image != null) {
+                        setState(() {
+                          _images.add(image.path);
+                          _markDirty();
+                        });
+                      }
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
   }
 
   void _showAddChecklistDialog(BuildContext context) {
@@ -267,7 +293,12 @@ class _NoteEditorPageState extends State<NoteEditorPage> {
               onPressed: () {
                 if (checklistController.text.trim().isNotEmpty) {
                   setState(() {
-                    _checklist.add(ChecklistItem(title: checklistController.text.trim(), isCompleted: false));
+                    _checklist.add(
+                      ChecklistItem(
+                        title: checklistController.text.trim(),
+                        isCompleted: false,
+                      ),
+                    );
                     _markDirty();
                   });
                 }
@@ -277,7 +308,7 @@ class _NoteEditorPageState extends State<NoteEditorPage> {
             ),
           ],
         );
-      }
+      },
     );
   }
 }
