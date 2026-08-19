@@ -56,18 +56,111 @@ class NotificationService {
           },
     );
 
-    // Request Android 13+ permissions
-    flutterLocalNotificationsPlugin
+    // Request Android 13+ permissions sequentially to avoid concurrent permission requests
+    final androidImplementation = flutterLocalNotificationsPlugin
         .resolvePlatformSpecificImplementation<
           AndroidFlutterLocalNotificationsPlugin
-        >()
-        ?.requestNotificationsPermission();
+        >();
 
-    flutterLocalNotificationsPlugin
+    if (androidImplementation != null) {
+      try {
+        await androidImplementation.requestNotificationsPermission();
+      } catch (e) {
+        debugPrint('Error requesting notifications permission: $e');
+      }
+
+      try {
+        await androidImplementation.requestExactAlarmsPermission();
+      } catch (e) {
+        debugPrint('Error requesting exact alarms permission: $e');
+      }
+    }
+  }
+
+  Future<bool> checkPermission() async {
+    final androidImplementation = flutterLocalNotificationsPlugin
         .resolvePlatformSpecificImplementation<
           AndroidFlutterLocalNotificationsPlugin
-        >()
-        ?.requestExactAlarmsPermission();
+        >();
+    if (androidImplementation != null) {
+      final bool? enabled =
+          await androidImplementation.areNotificationsEnabled();
+      return enabled ?? false;
+    }
+
+    final iosImplementation = flutterLocalNotificationsPlugin
+        .resolvePlatformSpecificImplementation<
+          IOSFlutterLocalNotificationsPlugin
+        >();
+    if (iosImplementation != null) {
+      final bool? granted = await iosImplementation.requestPermissions(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
+      return granted ?? false;
+    }
+
+    final macosImplementation = flutterLocalNotificationsPlugin
+        .resolvePlatformSpecificImplementation<
+          MacOSFlutterLocalNotificationsPlugin
+        >();
+    if (macosImplementation != null) {
+      final bool? granted = await macosImplementation.requestPermissions(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
+      return granted ?? false;
+    }
+
+    return true;
+  }
+
+  Future<bool> requestPermission() async {
+    final androidImplementation = flutterLocalNotificationsPlugin
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >();
+    if (androidImplementation != null) {
+      final bool? granted =
+          await androidImplementation.requestNotificationsPermission();
+      try {
+        await androidImplementation.requestExactAlarmsPermission();
+      } catch (e) {
+        debugPrint('Error requesting exact alarms permission: $e');
+      }
+      final bool current = await checkPermission();
+      return granted ?? current;
+    }
+
+    final iosImplementation = flutterLocalNotificationsPlugin
+        .resolvePlatformSpecificImplementation<
+          IOSFlutterLocalNotificationsPlugin
+        >();
+    if (iosImplementation != null) {
+      final bool? granted = await iosImplementation.requestPermissions(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
+      return granted ?? false;
+    }
+
+    final macosImplementation = flutterLocalNotificationsPlugin
+        .resolvePlatformSpecificImplementation<
+          MacOSFlutterLocalNotificationsPlugin
+        >();
+    if (macosImplementation != null) {
+      final bool? granted = await macosImplementation.requestPermissions(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
+      return granted ?? false;
+    }
+
+    return true;
   }
 
   NotificationDetails _getNotificationDetails({

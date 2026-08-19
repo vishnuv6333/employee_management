@@ -5,7 +5,6 @@ import '../../../../core/widgets/skeleton_loader.dart';
 import '../bloc/notes_bloc.dart';
 import '../bloc/notes_event.dart';
 import '../bloc/notes_state.dart';
-import '../../domain/entities/note.dart';
 import '../../../../core/routing/app_routes.dart';
 import '../widgets/note_card_widget.dart';
 
@@ -41,7 +40,8 @@ class NotesView extends StatelessWidget {
               if (value == 'archived') {
                 context.push(AppRoutes.archived).then((_) {
                   // ignore: use_build_context_synchronously
-                  if (context.mounted) context.read<NotesBloc>().add(LoadNotes());
+                  if (context.mounted)
+                    context.read<NotesBloc>().add(LoadNotes());
                 });
               }
             },
@@ -62,10 +62,60 @@ class NotesView extends StatelessWidget {
             return const CardSkeletonList();
           } else if (state is NotesLoaded) {
             if (state.notes.isEmpty) {
-              return const Center(child: Text('No notes yet. Create one!'));
+              final colorScheme = Theme.of(context).colorScheme;
+              return Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(32.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(24),
+                        decoration: BoxDecoration(
+                          color: colorScheme.primaryContainer.withValues(alpha: 0.5),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.note_add_outlined,
+                          size: 56,
+                          color: colorScheme.primary,
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      Text(
+                        'No Notes Yet',
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Create your first workspace note to keep track of tasks, reminders, and ideas.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: colorScheme.onSurfaceVariant,
+                          height: 1.4,
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          context.push(AppRoutes.noteEditor).then((_) {
+                            if (context.mounted) {
+                              context.read<NotesBloc>().add(LoadNotes());
+                            }
+                          });
+                        },
+                        icon: const Icon(Icons.add_rounded),
+                        label: const Text('Create Note'),
+                      ),
+                    ],
+                  ),
+                ),
+              );
             }
             return ListView.builder(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
               itemCount: state.notes.length,
               itemBuilder: (context, index) {
                 final note = state.notes[index];
@@ -79,7 +129,11 @@ class NotesView extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(Icons.error_outline, size: 64, color: Colors.redAccent),
+                    const Icon(
+                      Icons.error_outline,
+                      size: 64,
+                      color: Colors.redAccent,
+                    ),
                     const SizedBox(height: 16),
                     Text(
                       'Oops! Something went wrong.',
@@ -97,7 +151,7 @@ class NotesView extends StatelessWidget {
                         context.read<NotesBloc>().add(LoadNotes());
                       },
                       child: const Text('Try Again'),
-                    )
+                    ),
                   ],
                 ),
               ),
@@ -106,14 +160,15 @@ class NotesView extends StatelessWidget {
           return const SizedBox.shrink();
         },
       ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           context.push(AppRoutes.noteEditor).then((_) {
             // ignore: use_build_context_synchronously
             if (context.mounted) context.read<NotesBloc>().add(LoadNotes());
           });
         },
-        child: const Icon(Icons.add),
+        icon: const Icon(Icons.add_rounded),
+        label: const Text('New Note'),
       ),
     );
   }

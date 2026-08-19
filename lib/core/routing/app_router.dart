@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'app_routes.dart';
 import '../../features/dashboard/presentation/pages/dashboard_page.dart';

@@ -10,6 +10,8 @@ import 'features/notes/presentation/bloc/notes_event.dart';
 
 import 'core/notifications/notification_service.dart';
 
+import 'core/notifications/notification_permission_gate.dart';
+
 final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
 
 void main() async {
@@ -39,6 +41,11 @@ class SmartWorkspaceApp extends StatelessWidget {
             themeMode: themeState.isDarkMode ? ThemeMode.dark : ThemeMode.light,
             routerConfig: appRouter,
             debugShowCheckedModeBanner: false,
+            builder: (context, child) {
+              return NotificationPermissionGate(
+                child: child ?? const SizedBox.shrink(),
+              );
+            },
           );
         },
       ),

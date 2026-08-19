@@ -26,6 +26,25 @@ class NoteEditorAppBar extends StatelessWidget implements PreferredSizeWidget {
         IconButton(
           icon: const Icon(Icons.notifications_active),
           onPressed: () async {
+            final hasPermission = await di
+                .sl<NotificationService>()
+                .requestPermission();
+            if (!hasPermission) {
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text(
+                      'Notification permission required to set Note Reminders.',
+                    ),
+                    backgroundColor: Colors.redAccent,
+                  ),
+                );
+              }
+              return;
+            }
+
+            if (!context.mounted) return;
+
             final date = await showDatePicker(
               context: context,
               initialDate: DateTime.now(),
